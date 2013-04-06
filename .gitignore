@@ -12,6 +12,12 @@
 *.la
 *.a
 
+# File backups
+*~
+
+# Test videos
+*.avi
+
 # Executables
 gauss
 detector

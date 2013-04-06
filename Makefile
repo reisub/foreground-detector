@@ -4,7 +4,7 @@ CC				= g++
 CFLAGS			= -c -g -Wall -Wextra
 LDFLAGS			=
 
-SOURCES  		= gaussian.cpp
+SOURCES  		= detector.cpp gaussian.cpp
 OBJECTS 		= ${SOURCES:.cpp=.o}
 
 EXECUTABLE		= detector

@@ -23,12 +23,12 @@ int main( int argc, char** argv ) {
 
     grayscaleGaussianBlur(image, blurred, 2*radius+1);
 
-    cv::namedWindow( "Original image", CV_WINDOW_AUTOSIZE );// Create a window for display.
-    cv::namedWindow( "Gaussian blur", CV_WINDOW_AUTOSIZE );// Create a window for display.
+    cv::namedWindow( "Original image", CV_WINDOW_AUTOSIZE );
+    cv::namedWindow( "Gaussian blur", CV_WINDOW_AUTOSIZE );
 
-    cv::imshow( "Original image", image );                   // Show our image inside it.
-    cv::imshow( "Gaussian blur", blurred );                   // Show our image inside it.
+    cv::imshow( "Original image", image );
+    cv::imshow( "Gaussian blur", blurred );
 
-    cv::waitKey(0);                                          // Wait for a keystroke in the window
+    cv::waitKey(0);
     return 0;
 }
