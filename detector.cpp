@@ -8,15 +8,10 @@ int main(int argc, char **argv) {
 		exit(-1);
 	}
 
-	cv::VideoCapture video(argv[1]);
-	if (!video.isOpened()) {
-		std::cerr << "Could not open video file \"" << argv[1] << "\". Aborting." << std::endl;
-		exit(-1);
-	}
+	std::string filename(argv[1]);
 
-	process(video);
-
-	video.release();
+	Background background(filename);
+	background.computeBasicModel();
 
 	return 0;
 }

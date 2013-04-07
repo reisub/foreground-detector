@@ -3,8 +3,20 @@
 
 #include <opencv2/opencv.hpp>
 #include <cassert>
+#include <vector>
 #include "gaussian.hpp"
 
-void process(cv::VideoCapture &video);
+class Background {
+public:
+	std::string file;
+	cv::VideoCapture video;
+	cv::Mat backgroundModel;
+	int width, height;
+	std::vector<char> *pixels;
+	Background(std::string filename);
+	~Background();
+	void computeBasicModel();
+	char getMedian(std::vector<char> &v);
+};
 
 #endif // BACKGROUND_H

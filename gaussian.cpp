@@ -49,7 +49,6 @@ void grayscaleGaussianBlur(cv::Mat &source, cv::Mat &destination, int sizeX, int
     }
     for (int i = 0; i < sizeX; ++i) {
         kernelX[i] /= sum;
-//        cout << "kernelX[" << i << "] = " << kernelX[i] << endl;
     }
 
     // if the sizes are equal, the kernels also are
@@ -66,7 +65,6 @@ void grayscaleGaussianBlur(cv::Mat &source, cv::Mat &destination, int sizeX, int
         }
         for( int i = 0; i < sizeY; ++i ) {
             kernelY[i] /= sum;
-//            cout << "kernelY[" << i << "] = " << kernelY[i] << endl;
         }
     }
 
