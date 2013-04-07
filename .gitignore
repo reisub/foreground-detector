@@ -18,6 +18,16 @@
 # Test videos
 *.avi
 
+# Pictures
+*.jpg
+*.jpeg
+*.JPG
+*.JPEG
+*.png
+
 # Executables
 gauss
 detector
+
+# QtCreator
+foreground-detector.creator.user
