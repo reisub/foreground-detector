@@ -11,7 +11,7 @@ Background::Background(std::string filename): file(filename) {
 	width = (int)video.get(CV_CAP_PROP_FRAME_WIDTH);
 	height = (int)video.get(CV_CAP_PROP_FRAME_HEIGHT);
 	backgroundModel = cv::Mat(cv::Size(width, height), CV_8UC1, cv::Scalar::all(0));
-	std::cout << "Video size is " << width << "x" << height << "." << std::endl;
+	// std::cout << "Video size is " << width << "x" << height << "." << std::endl;
 	pixels = new std::vector<char>[width*height];
 }
 
@@ -37,8 +37,6 @@ void Background::computeBasicModel() {
 		cv::imshow( "Frame", gray );
 	    cv::waitKey(5);
 	}
-
-	unsigned char value;
 
 	// compute medians and get background model
 	for (int row = 0; row < backgroundModel.rows; ++row) {
