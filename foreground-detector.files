@@ -5,3 +5,5 @@ gaussian.cpp
 gaussian.hpp
 README.md
 testGauss.cpp
+foreground.hpp
+foreground.cpp

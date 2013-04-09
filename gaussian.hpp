@@ -1,5 +1,5 @@
-#ifndef GAUSSIAN_H
-#define GAUSSIAN_H
+#ifndef GAUSSIAN_HPP
+#define GAUSSIAN_HPP
 
 #include <opencv2/core/core.hpp>
 #include <cassert>
@@ -8,4 +8,4 @@
 
 void grayscaleGaussianBlur(cv::Mat &source, cv::Mat &destination, int sizeX, int sizeY = -1);
 
-#endif // GAUSSIAN_H
+#endif // GAUSSIAN_HPP

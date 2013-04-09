@@ -1,5 +1,5 @@
-#ifndef BACKGROUND_H
-#define BACKGROUND_H
+#ifndef BACKGROUND_HPP
+#define BACKGROUND_HPP
 
 #include <opencv2/opencv.hpp>
 #include <cassert>
@@ -8,15 +8,16 @@
 
 class Background {
 public:
-	std::string file;
-	cv::VideoCapture video;
-	cv::Mat backgroundModel;
-	int width, height;
-	std::vector<char> *pixels;
-	Background(std::string filename);
-	~Background();
-	void computeBasicModel();
-	char getMedian(std::vector<char> &v);
+  std::string file;
+  cv::VideoCapture video;
+  cv::Mat backgroundModel;
+  int width, height;
+  std::vector<char> *pixels;
+  std::vector<cv::Mat> frames;
+  Background(std::string filename);
+  ~Background();
+  void computeBasicModel();
+  char getMedian(std::vector<char> &v);
 };
 
-#endif // BACKGROUND_H
+#endif // BACKGROUND_HPP

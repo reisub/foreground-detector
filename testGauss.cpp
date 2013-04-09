@@ -4,31 +4,31 @@
 #include "gaussian.hpp"
 
 int main( int argc, char** argv ) {
-    if( argc != 3) {
-        std::cout <<" Usage: " << argv[0] << " ImageToBlur BlurRadius" << std::endl;
-        return -1;
+  if( argc != 3) {
+      std::cout <<" Usage: " << argv[0] << " ImageToBlur BlurRadius" << std::endl;
+      return -1;
     }
 
-    unsigned int radius = atoi(argv[2]);
-    cv::Mat image, blurred;
-    image = cv::imread(argv[1], CV_LOAD_IMAGE_GRAYSCALE);   // Read the file
+  unsigned int radius = atoi(argv[2]);
+  cv::Mat image, blurred;
+  image = cv::imread(argv[1], CV_LOAD_IMAGE_GRAYSCALE);   // Read the file
 
-    // create empty result matrix for grayscale image - 8-bit, unsigned, 1-channel
-    blurred = cv::Mat(image.size(), CV_8UC1, cv::Scalar::all(0));
+  // create empty result matrix for grayscale image - 8-bit, unsigned, 1-channel
+  blurred = cv::Mat(image.size(), CV_8UC1, cv::Scalar::all(0));
 
-    if(! image.data ) {                              // Check for invalid input
-        std::cout <<  "Could not open or find the image" << std::endl;
-        return -1;
+  if(! image.data ) {                              // Check for invalid input
+      std::cout <<  "Could not open or find the image" << std::endl;
+      return -1;
     }
 
-    grayscaleGaussianBlur(image, blurred, 2*radius+1);
+  grayscaleGaussianBlur(image, blurred, 2*radius+1);
 
-    cv::namedWindow( "Original image", CV_WINDOW_AUTOSIZE );
-    cv::namedWindow( "Gaussian blur", CV_WINDOW_AUTOSIZE );
+  cv::namedWindow( "Original image", CV_WINDOW_AUTOSIZE );
+  cv::namedWindow( "Gaussian blur", CV_WINDOW_AUTOSIZE );
 
-    cv::imshow( "Original image", image );
-    cv::imshow( "Gaussian blur", blurred );
+  cv::imshow( "Original image", image );
+  cv::imshow( "Gaussian blur", blurred );
 
-    cv::waitKey(0);
-    return 0;
+  cv::waitKey(0);
+  return 0;
 }
