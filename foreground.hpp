@@ -5,6 +5,7 @@
 #include <cassert>
 #include <vector>
 #include "background.hpp"
+#include "gaussian.hpp"
 
 class Foreground {
 public:
