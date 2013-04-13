@@ -51,9 +51,9 @@ void Background::computeBasicModel() {
         }
     }
 
-  cv::namedWindow( "Background", CV_WINDOW_AUTOSIZE );
-  cv::imshow( "Background", backgroundModel );
-  cv::waitKey(0);
+//  cv::namedWindow( "Background", CV_WINDOW_AUTOSIZE );
+//  cv::imshow( "Background", backgroundModel );
+//  cv::waitKey(0);
 }
 
 Background::~Background() {
