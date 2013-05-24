@@ -12,12 +12,12 @@ public:
   cv::VideoCapture video;
   cv::Mat backgroundModel;
   int width, height;
-  std::vector<char> *pixels;
+  std::vector<unsigned char> *pixels;
   std::vector<cv::Mat> frames;
   Background(std::string filename);
   ~Background();
   void computeBasicModel();
-  char getMedian(std::vector<char> &v);
+  unsigned char getMedian(std::vector<unsigned char> &v);
 };
 
 #endif // BACKGROUND_HPP

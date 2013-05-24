@@ -1,4 +1,5 @@
 #include "background.hpp"
+#include <algorithm>
 
 Background::Background(std::string filename): file(filename) {
   std::cout << "Initializing stuff.." << std::endl;
@@ -11,8 +12,8 @@ Background::Background(std::string filename): file(filename) {
   width = (int)video.get(CV_CAP_PROP_FRAME_WIDTH);
   height = (int)video.get(CV_CAP_PROP_FRAME_HEIGHT);
   backgroundModel = cv::Mat(cv::Size(width, height), CV_8UC1, cv::Scalar::all(0));
-  // std::cout << "Video size is " << width << "x" << height << "." << std::endl;
-  pixels = new std::vector<char>[width*height];
+//   std::cout << "Video size is " << width << "x" << height << "." << std::endl;
+  pixels = new std::vector<unsigned char>[width*height];
 }
 
 void Background::computeBasicModel() {
@@ -38,7 +39,6 @@ void Background::computeBasicModel() {
 
       frames.push_back(gray.clone());
 
-
 //      cv::imshow( "Frame", gray );
 //      cv::imshow( "Frame2", frames.back() );
 //      cv::waitKey(5);
@@ -61,7 +61,7 @@ Background::~Background() {
   delete [] pixels;
 }
 
-char Background::getMedian(std::vector<char> &v) {
+unsigned char Background::getMedian(std::vector<unsigned char> &v) {
   size_t n = v.size() / 2;
   nth_element(v.begin(), v.begin()+n, v.end());
 

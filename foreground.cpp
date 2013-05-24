@@ -50,7 +50,7 @@ void Foreground::computeProjections() {
       cv::imshow( "Binary", binary.at(i) );
       cv::imshow( "Proj_V", vertical );
       cv::imshow( "Proj_H", horizontal );
-      cv::waitKey(0);
+      cv::waitKey(5);
     }
 }
 
