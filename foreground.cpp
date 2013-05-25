@@ -1,5 +1,8 @@
 #include "foreground.hpp"
 
+#define HPROJ_THRESH 0.10
+#define VPROJ_THRESH 0.10
+
 Foreground::Foreground(Background &back): background(back) {}
 
 Foreground::~Foreground() {
@@ -19,8 +22,8 @@ void Foreground::computeBinary() {
       difference = cv::abs(background.frames[i] - background.backgroundModel);
 
       // Reduce noise with Gaussian Blur
-      grayscaleGaussianBlur(difference, difference, 11);
-      cv::threshold(difference, binarized, 30, 255, cv::THRESH_BINARY);
+      grayscaleGaussianBlur(difference, difference, 5);
+      cv::threshold(difference, binarized, 40, 255, cv::THRESH_BINARY);
       binary.push_back(binarized.clone());
 
 //      cv::imshow( "Difference", difference );
@@ -50,7 +53,7 @@ void Foreground::computeProjections() {
       cv::imshow( "Binary", binary.at(i) );
       cv::imshow( "Proj_V", vertical );
       cv::imshow( "Proj_H", horizontal );
-      cv::waitKey(5);
+      cv::waitKey(0);
     }
 }
 
@@ -105,4 +108,72 @@ void Foreground::drawProjection(cv::Mat &graph, std::vector<unsigned char> &proj
             }
         }
     }
+}
+
+int* getHDimension(std::vector<unsigned char> &vprojection) {
+  int result[2] = { -1, -1 };
+  int max = 0, maxIndex = -1;
+  for (int var = 0; var < vprojection.size(); ++var) {
+      if(vprojection[var] > max) {
+          max = vprojection[var];
+          maxIndex = var;
+        }
+    }
+
+  if(maxIndex = -1) {
+      return result;
+    }
+
+  // go from max left and right to borders and return borders
+  for (int var = maxIndex; var >= 0; --var) {
+      if(vprojection[var] < VPROJ_THRESH*max) {
+          result[0] = var;
+          break;
+        }
+    }
+  for (int var = maxIndex; var < vprojection.size(); ++var) {
+      if(vprojection[var] < VPROJ_THRESH*max) {
+          result[1] = var;
+          break;
+        }
+    }
+
+  result[0] = (result[0] == -1) ? 0 : result[0];
+  result[1] = (result[1] == -1) ? vprojection.size()-1 : result[1];
+
+  return result;
+}
+
+int* getVDimension(std::vector<unsigned char> &hprojection) {
+  int result[2] = { -1, -1 };
+  int max = 0, maxIndex = -1;
+  for (int var = 0; var < hprojection.size(); ++var) {
+      if(hprojection[var] > max) {
+          max = hprojection[var];
+          maxIndex = var;
+        }
+    }
+
+  if(maxIndex = -1) {
+      return result;
+    }
+
+  // go from max up and down to borders and return borders
+  for (int var = maxIndex; var >= 0; --var) {
+      if(hprojection[var] < HPROJ_THRESH*max) {
+          result[0] = var;
+          break;
+        }
+    }
+  for (int var = maxIndex; var < hprojection.size(); ++var) {
+      if(hprojection[var] < HPROJ_THRESH*max) {
+          result[1] = var;
+          break;
+        }
+    }
+
+  result[0] = (result[0] == -1) ? 0 : result[0];
+  result[1] = (result[1] == -1) ? hprojection.size()-1 : result[1];
+
+  return result;
 }

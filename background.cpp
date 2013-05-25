@@ -61,7 +61,7 @@ Background::~Background() {
   delete [] pixels;
 }
 
-unsigned char Background::getMedian(std::vector<unsigned char> &v) {
+static unsigned char Background::getMedian(std::vector<unsigned char> &v) {
   size_t n = v.size() / 2;
   nth_element(v.begin(), v.begin()+n, v.end());
 
