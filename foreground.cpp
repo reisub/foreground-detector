@@ -1,7 +1,7 @@
 #include "foreground.hpp"
 
 #define HPROJ_THRESH 0.10
-#define VPROJ_THRESH 0.10
+#define VPROJ_THRESH 0.05
 
 Foreground::Foreground(Background &back): background(back) {}
 
@@ -10,13 +10,11 @@ Foreground::~Foreground() {
 }
 
 void Foreground::computeBinary() {
-  std::cout << "Computing binary images.." << std::endl;
+  std::cout << "Computing binary images and projections.." << std::endl;
 
-  cv::Mat difference, binarized, sobel, x_grad, y_grad;
+  cv::Mat difference, binarized;
 
-//  cv::namedWindow( "Frame", CV_WINDOW_AUTOSIZE );
-//  cv::namedWindow( "Difference", CV_WINDOW_AUTOSIZE );
-//  cv::namedWindow( "Binary", CV_WINDOW_AUTOSIZE );
+  cv::namedWindow( "Person", CV_WINDOW_AUTOSIZE );
 
   for (unsigned int i = 0; i < background.frames.size(); ++i) {
       difference = cv::abs(background.frames[i] - background.backgroundModel);
@@ -26,35 +24,36 @@ void Foreground::computeBinary() {
       cv::threshold(difference, binarized, 40, 255, cv::THRESH_BINARY);
       binary.push_back(binarized.clone());
 
-//      cv::imshow( "Difference", difference );
-//      cv::threshold(difference, binarized, 30, 255, cv::THRESH_BINARY);
-//      cv::imshow( "Frame", background.frames[i] );
-//      cv::imshow( "Binary", binarized );
-//      cv::waitKey(10);
+      cv::Mat bounded = computeProjection(binarized);
+
+      cv::imshow("Person", bounded);
+
+      cv::waitKey(0);
   }
 }
 
-void Foreground::computeProjections() {
-  std::cout << "Computing projections.." << std::endl;
-
-  cv::namedWindow( "Binary", CV_WINDOW_AUTOSIZE );
-  cv::namedWindow( "Proj_V", CV_WINDOW_AUTOSIZE );
-  cv::namedWindow( "Proj_H", CV_WINDOW_AUTOSIZE );
-
+cv::Mat Foreground::computeProjection(cv::Mat &binary) {
   cv::Mat vertical = cv::Mat(background.height, background.width, CV_8UC1);
   cv::Mat horizontal = cv::Mat(background.height, background.width, CV_8UC1);
-  std::vector<unsigned char> values;
+  std::vector<unsigned char> hproj, vproj;
+  int hdim[2], vdim[2];
+  cv::Mat bounded = binary.clone();
 
-  for (unsigned int i = 0; i < binary.size(); ++i) {
-      getProjection(binary.at(i), values, VERTICAL);
-      drawProjection(vertical, values, VERTICAL);
-      getProjection(binary.at(i), values, HORIZONTAL);
-      drawProjection(horizontal, values, HORIZONTAL);
-      cv::imshow( "Binary", binary.at(i) );
-      cv::imshow( "Proj_V", vertical );
-      cv::imshow( "Proj_H", horizontal );
-      cv::waitKey(0);
+  getProjection(binary, vproj, VERTICAL);
+  drawProjection(vertical, vproj, VERTICAL);
+  getDimension(vproj, VERTICAL, vdim);
+  getProjection(binary, hproj, HORIZONTAL);
+  drawProjection(horizontal, hproj, HORIZONTAL);
+  getDimension(hproj, HORIZONTAL, hdim);
+
+  cv::cvtColor(bounded, bounded, CV_GRAY2RGB);
+
+  if(hdim[0] != -1 && hdim[1] != -1 && vdim[0] != -1 && vdim[1] != -1) {
+      cv::rectangle(bounded, cv::Point(vdim[0], hdim[0]), cv::Point(vdim[1], hdim[1]), cv::Scalar(0, 0, 255), 1);
     }
+
+  return bounded;
+
 }
 
 void Foreground::getProjection(cv::Mat &binary, std::vector<unsigned char> &projection, Foreground::ProjectionType type) {
@@ -110,70 +109,46 @@ void Foreground::drawProjection(cv::Mat &graph, std::vector<unsigned char> &proj
     }
 }
 
-int* getHDimension(std::vector<unsigned char> &vprojection) {
-  int result[2] = { -1, -1 };
+void Foreground::getDimension(std::vector<unsigned char> &projection, Foreground::ProjectionType type, int *result) {
+  result[1] = result[0] = -1;
   int max = 0, maxIndex = -1;
-  for (int var = 0; var < vprojection.size(); ++var) {
-      if(vprojection[var] > max) {
-          max = vprojection[var];
+  float threshold = (type == HORIZONTAL) ? HPROJ_THRESH : VPROJ_THRESH ;
+
+  for (unsigned int var = 0; var < projection.size(); ++var) {
+      if(projection[var] > max) {
+          max = projection[var];
           maxIndex = var;
         }
     }
 
-  if(maxIndex = -1) {
-      return result;
+  if(max == 0) {
+      return ;
     }
+
+  result[1] = result[0] = maxIndex;
 
   // go from max left and right to borders and return borders
-  for (int var = maxIndex; var >= 0; --var) {
-      if(vprojection[var] < VPROJ_THRESH*max) {
+  int var;
+  for (var = maxIndex; var >= 0; --var) {
+      if(projection[var] < threshold*max) {
           result[0] = var;
           break;
         }
     }
-  for (int var = maxIndex; var < vprojection.size(); ++var) {
-      if(vprojection[var] < VPROJ_THRESH*max) {
+  if(var <= 0) {
+      result[0] = 0;
+    }
+
+  for (var = maxIndex; (unsigned)var < projection.size(); ++var) {
+      if(projection[var] < threshold*max) {
           result[1] = var;
           break;
         }
     }
-
-  result[0] = (result[0] == -1) ? 0 : result[0];
-  result[1] = (result[1] == -1) ? vprojection.size()-1 : result[1];
-
-  return result;
-}
-
-int* getVDimension(std::vector<unsigned char> &hprojection) {
-  int result[2] = { -1, -1 };
-  int max = 0, maxIndex = -1;
-  for (int var = 0; var < hprojection.size(); ++var) {
-      if(hprojection[var] > max) {
-          max = hprojection[var];
-          maxIndex = var;
-        }
+  if((unsigned)var >= projection.size() - 1) {
+      result[1] = projection.size()-1;
     }
 
-  if(maxIndex = -1) {
-      return result;
-    }
 
-  // go from max up and down to borders and return borders
-  for (int var = maxIndex; var >= 0; --var) {
-      if(hprojection[var] < HPROJ_THRESH*max) {
-          result[0] = var;
-          break;
-        }
-    }
-  for (int var = maxIndex; var < hprojection.size(); ++var) {
-      if(hprojection[var] < HPROJ_THRESH*max) {
-          result[1] = var;
-          break;
-        }
-    }
-
-  result[0] = (result[0] == -1) ? 0 : result[0];
-  result[1] = (result[1] == -1) ? hprojection.size()-1 : result[1];
-
-  return result;
+  return ;
 }

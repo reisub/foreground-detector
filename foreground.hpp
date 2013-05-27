@@ -15,9 +15,10 @@ public:
   std::vector<cv::Mat> binary;
   enum ProjectionType { HORIZONTAL, VERTICAL };
   void computeBinary();
-  void computeProjections();
+  cv::Mat computeProjection(cv::Mat &binary);
   void getProjection(cv::Mat &binary, std::vector<unsigned char> &projection, Foreground::ProjectionType type);
   void drawProjection(cv::Mat &graph, std::vector<unsigned char> &projection, Foreground::ProjectionType type);
+  void getDimension(std::vector<unsigned char> &projection, Foreground::ProjectionType type, int *result);
 };
 
 #endif // FOREGROUND_HPP

@@ -16,7 +16,6 @@ int main(int argc, char **argv) {
 
   Foreground foreground(background);
   foreground.computeBinary();
-  foreground.computeProjections();
 
   return 0;
 }

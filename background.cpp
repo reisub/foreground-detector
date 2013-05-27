@@ -28,7 +28,7 @@ void Background::computeBasicModel() {
   // read frame by frame and process
   while(video.read(frame)) {
       // convert to grayscale and apply Gaussian blur
-      cvtColor(frame, gray, CV_RGB2GRAY);
+      cv::cvtColor(frame, gray, CV_RGB2GRAY);
       grayscaleGaussianBlur(gray, gray, 5);
 
       for (int row = 0; row < gray.rows; ++row) {
@@ -61,7 +61,7 @@ Background::~Background() {
   delete [] pixels;
 }
 
-static unsigned char Background::getMedian(std::vector<unsigned char> &v) {
+unsigned char Background::getMedian(std::vector<unsigned char> &v) {
   size_t n = v.size() / 2;
   nth_element(v.begin(), v.begin()+n, v.end());
 
