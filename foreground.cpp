@@ -1,7 +1,8 @@
 #include "foreground.hpp"
 
-#define HPROJ_THRESH 0.10
+#define HPROJ_THRESH 0.05
 #define VPROJ_THRESH 0.05
+#define BOUNDING_MARGIN 3
 
 Foreground::Foreground(Background &back): background(back) {}
 
@@ -24,7 +25,7 @@ void Foreground::computeBinary() {
       cv::threshold(difference, binarized, 40, 255, cv::THRESH_BINARY);
       binary.push_back(binarized.clone());
 
-      cv::Mat bounded = computeProjection(binarized);
+      cv::Mat bounded = computeProjection(binarized, background.frames[i]);
 
       cv::imshow("Person", bounded);
 
@@ -32,12 +33,12 @@ void Foreground::computeBinary() {
   }
 }
 
-cv::Mat Foreground::computeProjection(cv::Mat &binary) {
+cv::Mat Foreground::computeProjection(cv::Mat &binary, cv::Mat &frame) {
   cv::Mat vertical = cv::Mat(background.height, background.width, CV_8UC1);
   cv::Mat horizontal = cv::Mat(background.height, background.width, CV_8UC1);
   std::vector<unsigned char> hproj, vproj;
   int hdim[2], vdim[2];
-  cv::Mat bounded = binary.clone();
+  cv::Mat bounded = frame.clone();
 
   getProjection(binary, vproj, VERTICAL);
   drawProjection(vertical, vproj, VERTICAL);
@@ -49,6 +50,10 @@ cv::Mat Foreground::computeProjection(cv::Mat &binary) {
   cv::cvtColor(bounded, bounded, CV_GRAY2RGB);
 
   if(hdim[0] != -1 && hdim[1] != -1 && vdim[0] != -1 && vdim[1] != -1) {
+      hdim[0] = (hdim[0] > BOUNDING_MARGIN) ? (hdim[0] - BOUNDING_MARGIN) : 0 ;
+      vdim[0] = (vdim[0] > BOUNDING_MARGIN) ? (vdim[0] - BOUNDING_MARGIN) : 0 ;
+      hdim[1] = ((hdim[1] + BOUNDING_MARGIN) < bounded.rows ) ? (hdim[1] + BOUNDING_MARGIN) : (bounded.rows - 1) ;
+      vdim[1] = ((vdim[1] + BOUNDING_MARGIN) < bounded.cols ) ? (vdim[1] + BOUNDING_MARGIN) : (bounded.cols - 1) ;
       cv::rectangle(bounded, cv::Point(vdim[0], hdim[0]), cv::Point(vdim[1], hdim[1]), cv::Scalar(0, 0, 255), 1);
     }
 
