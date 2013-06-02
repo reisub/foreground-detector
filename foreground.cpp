@@ -22,6 +22,8 @@ void Foreground::computeBinary() {
 
       // Reduce noise with Gaussian Blur
       grayscaleGaussianBlur(difference, difference, 5);
+
+      // Compute binary image
       cv::threshold(difference, binarized, 40, 255, cv::THRESH_BINARY);
       binary.push_back(binarized.clone());
 

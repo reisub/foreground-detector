@@ -17,6 +17,7 @@ public:
   Background(std::string filename);
   ~Background();
   void computeBasicModel();
+  unsigned char getMean(std::vector<unsigned char> &v);
   static unsigned char getMedian(std::vector<unsigned char> &v);
 };
 
