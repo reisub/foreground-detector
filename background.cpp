@@ -1,7 +1,8 @@
 #include "background.hpp"
 #include <algorithm>
 
-#define FRAMES 10
+#define FRAMES 20
+#define DIFF_THRESH 40
 
 Background::Background(std::string filename): file(filename) {
   std::cout << "Initializing stuff.." << std::endl;
@@ -33,7 +34,8 @@ void Background::computeBasicModel() {
       grayscaleGaussianBlur(gray, gray, 5);
 
       for (int row = 0; row < gray.rows; ++row) {
-          for (int col = 0; col < gray.cols; ++col)	{
+#pragma omp parallel for
+          for (int col = 0; col < gray.cols; ++col) {
               pixels[row * width + col].push_back((int)gray.at<uchar>(row, col));
             }
         }
@@ -48,17 +50,18 @@ void Background::computeBasicModel() {
 
   // compute medians and get background model
   for (int row = 0; row < backgroundModel.rows; ++row) {
-      for (int col = 0; col < backgroundModel.cols; ++col)	{
+#pragma omp parallel for
+      for (int col = 0; col < backgroundModel.cols; ++col) {
           backgroundModel.at<uchar>(row, col) = getMean(pixels[row * width + col]);
         }
     }
 
   // izračunati koliko se maksimalno frame razlikuje od modela pozadine
-  // postaviti granicu eksperimantalno
+  // postaviti granicu empirijski
   video.release();
   video.open(file);
 
-  double difference_score = 0.0;
+  long int difference_score = 0;
   int cnt = 0;
 
   while(video.read(frame)) {
@@ -70,12 +73,13 @@ void Background::computeBasicModel() {
       cv::cvtColor(frame, gray, CV_RGB2GRAY);
       grayscaleGaussianBlur(gray, gray, 5);
 
-      double difference = 0.0;
-
+      long int difference = 0;
       for (int row = 0; row < gray.rows; ++row) {
+#pragma omp parallel for reduction(+:difference)
           for (int col = 0; col < gray.cols; ++col) {
-              // using Mean Squared Error
-              difference += pow(abs((int)gray.at<uchar>(row, col)-(int)backgroundModel.at<uchar>(row, col))/10, 2);
+              if(abs((int)gray.at<uchar>(row, col)-(int)backgroundModel.at<uchar>(row, col)) >= DIFF_THRESH) {
+                  difference++;
+                }
             }
         }
 
@@ -86,9 +90,9 @@ void Background::computeBasicModel() {
 
   std::cout << "Difference score: " << difference_score << std::endl;
 
-  cv::namedWindow( "Background", CV_WINDOW_AUTOSIZE );
-  cv::imshow( "Background", backgroundModel );
-  cv::waitKey(0);
+//  cv::namedWindow( "Background", CV_WINDOW_AUTOSIZE );
+//  cv::imshow( "Background", backgroundModel );
+//  cv::waitKey(0);
   exit(0);
 }
 

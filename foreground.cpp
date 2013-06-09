@@ -3,6 +3,7 @@
 #define HPROJ_THRESH 0.05
 #define VPROJ_THRESH 0.05
 #define BOUNDING_MARGIN 3
+#define DIFF_THRESH 40
 
 Foreground::Foreground(Background &back): background(back) {}
 
@@ -24,7 +25,7 @@ void Foreground::computeBinary() {
       grayscaleGaussianBlur(difference, difference, 5);
 
       // Compute binary image
-      cv::threshold(difference, binarized, 40, 255, cv::THRESH_BINARY);
+      cv::threshold(difference, binarized, DIFF_THRESH, 255, cv::THRESH_BINARY);
       binary.push_back(binarized.clone());
 
       cv::Mat bounded = computeProjection(binarized, background.frames[i]);
@@ -66,12 +67,12 @@ cv::Mat Foreground::computeProjection(cv::Mat &binary, cv::Mat &frame) {
 void Foreground::getProjection(cv::Mat &binary, std::vector<unsigned char> &projection, Foreground::ProjectionType type) {
   assert(binary.type() == CV_8UC1);
   projection.clear();
-  int sum;
+  int sum = 0;
 
   if(type == HORIZONTAL) {
-      // parallelize here
       for (int i = 0; i < binary.rows; ++i) {
           sum = 0;
+#pragma omp parallel for reduction(+:sum)
           for (int j = 0; j < binary.cols; ++j) {
               if( (int)binary.at<uchar>(i, j) != 0 ) {
                   sum++;
@@ -81,9 +82,9 @@ void Foreground::getProjection(cv::Mat &binary, std::vector<unsigned char> &proj
         }
     }
   else {
-      // parallelize here
       for (int i = 0; i < binary.cols; ++i) {
           sum = 0;
+#pragma omp parallel for reduction(+:sum)
           for (int j = 0; j < binary.rows; ++j) {
               if( (int)binary.at<uchar>(j, i) != 0 ) {
                   sum++;

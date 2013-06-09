@@ -1,14 +1,13 @@
 PROJECT			= detector
 
 CC				= g++
-CFLAGS			= -c -g -Wall -Wextra
-LDFLAGS			=
+CFLAGS			= -c -g -fopenmp -Wall -Wextra
+LDFLAGS			= -lgomp
 
 SOURCES  		= detector.cpp foreground.cpp background.cpp gaussian.cpp
 OBJECTS 		= ${SOURCES:.cpp=.o}
 
 EXECUTABLE		= detector
-
 
 CFLAGS			+= `pkg-config --cflags opencv`
 LDFLAGS			+= `pkg-config --libs opencv`
