@@ -19,6 +19,7 @@ public:
   void computeBasicModel();
   unsigned char getMean(std::vector<unsigned char> &v);
   static unsigned char getMedian(std::vector<unsigned char> &v);
+  static void drawHistogram(cv::Mat &m, cv::Mat &hist, unsigned int height = 512, unsigned int binWidth = 2, unsigned int binSpacing = 1);
 };
 
 #endif // BACKGROUND_HPP

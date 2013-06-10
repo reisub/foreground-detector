@@ -3,6 +3,8 @@
 
 #define FRAMES 20
 #define DIFF_THRESH 40
+#define MARGIN_SIDE 0.1
+#define MARGIN_BOTTOM 0.15
 
 Background::Background(std::string filename): file(filename) {
   std::cout << "Initializing stuff.." << std::endl;
@@ -90,10 +92,21 @@ void Background::computeBasicModel() {
 
   std::cout << "Difference score: " << difference_score << std::endl;
 
-//  cv::namedWindow( "Background", CV_WINDOW_AUTOSIZE );
-//  cv::imshow( "Background", backgroundModel );
-//  cv::waitKey(0);
+  //  if(difference_score < 2000.0)
+  //    exit(0);
+
+  cv::Mat hist;
+  cv::Mat centralBgModel = cv::Mat(backgroundModel, cv::Range(0, backgroundModel.rows*(1.0 - MARGIN_BOTTOM)), cv::Range(backgroundModel.cols * MARGIN_SIDE, backgroundModel.cols*(1.0 - MARGIN_SIDE)));
+  drawHistogram(centralBgModel, hist);
+
+  cv::namedWindow( "Background", CV_WINDOW_AUTOSIZE );
+  cv::imshow( "Background", backgroundModel );
+  cv::namedWindow( "Histogram", CV_WINDOW_AUTOSIZE );
+  cv::imshow( "Histogram", hist );
+  cv::waitKey(0);
+
   exit(0);
+
 }
 
 Background::~Background() {
@@ -123,3 +136,49 @@ unsigned char Background::getMedian(std::vector<unsigned char> &v) {
 
   return v[n];
 }
+
+void Background::drawHistogram(cv::Mat &m, cv::Mat &hist, unsigned int height, unsigned int binWidth, unsigned int binSpacing) {
+  assert(height > 0);
+  assert(binWidth > 0);
+
+  unsigned int bins[256] = { 0 };
+  for (int row = 0; row < m.rows; ++row) {
+      for (int col = 0; col < m.cols; ++col) {
+          bins[(unsigned int)m.at<uchar>(row, col)]++;
+        }
+    }
+
+  unsigned int max = 0;
+  for (int bin = 0; bin < 256; ++bin) {
+      if(bins[bin] > max) {
+          max = bins[bin];
+        }
+    }
+
+  unsigned int width = 256 * binWidth + 255 * binSpacing;
+  hist = cv::Mat(height, width, CV_8UC1, cv::Scalar::all(0));
+
+  unsigned int size;
+  for (unsigned int bin = 0, position = 0; bin < 256; ++bin, position += binWidth + binSpacing) {
+      size = (bins[bin]/(float)max) * height;
+      cv::rectangle(hist, cv::Point(position, height - 1), cv::Point(position + binWidth - 1, height - 1 -size), cv::Scalar(255), CV_FILLED);
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
