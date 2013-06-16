@@ -5,6 +5,7 @@
 #define DIFF_THRESH 40
 #define MARGIN_SIDE 0.1
 #define MARGIN_BOTTOM 0.15
+#define HISTOGRAM_MOST 0.9
 
 Background::Background(std::string filename): file(filename) {
   std::cout << "Initializing stuff.." << std::endl;
@@ -26,8 +27,6 @@ void Background::computeBasicModel() {
   assert(video.isOpened());
 
   cv::Mat frame, gray;
-//  cv::namedWindow( "Frame", CV_WINDOW_AUTOSIZE );
-//  cv::namedWindow( "Frame2", CV_WINDOW_AUTOSIZE );
 
   // read frame by frame and process
   while(video.read(frame)) {
@@ -44,10 +43,6 @@ void Background::computeBasicModel() {
 
       frames.push_back(gray.clone());
 
-
-//      cv::imshow( "Frame", gray );
-//      cv::imshow( "Frame2", frames.back() );
-//      cv::waitKey(5);
     }
 
   // compute medians and get background model
@@ -67,27 +62,84 @@ void Background::computeBasicModel() {
   cv::imshow( "Background", backgroundModel );
   cv::namedWindow( "Histogram", CV_WINDOW_AUTOSIZE );
   cv::imshow( "Histogram", hist );
-  cv::waitKey(0);
 
   adjustBackgroundModel();
-
-  bgModelHist = computeHistogram(centralBgModel);
   drawHistogram(bgModelHist, hist);
 
-  cv::namedWindow( "Background", CV_WINDOW_AUTOSIZE );
-  cv::imshow( "Background", backgroundModel );
-  cv::namedWindow( "Histogram", CV_WINDOW_AUTOSIZE );
-  cv::imshow( "Histogram", hist );
+  cv::namedWindow( "Adjusted background", CV_WINDOW_AUTOSIZE );
+  cv::imshow( "Adjusted background", backgroundModel );
+  cv::namedWindow( "Adjusted histogram", CV_WINDOW_AUTOSIZE );
+  cv::imshow( "Adjusted histogram", hist );
   cv::waitKey(0);
 
-  // 2sigma okolo peaka?
-
 //  exit(0);
-
 }
 
 void Background::adjustBackgroundModel() {
-  // TODO histogram magic
+  unsigned int totalPixels = 0;
+
+  // get peak value
+  unsigned int max = 0, maxPos = 0;
+  for (int p = 0; p < 256; ++p) {
+      totalPixels += bgModelHist[p];
+      if(bgModelHist[p] > max) {
+          max = bgModelHist[p];
+          maxPos = p;
+        }
+    }
+
+  unsigned int upperMost, lowerMost, upperAll, lowerAll;
+  upperMost = lowerMost = upperAll = lowerAll = maxPos;
+
+  unsigned int sum = bgModelHist[maxPos];
+  bool directionUp = true, boundsMostFound = false, boundsAllFound = false;
+  int counterUp = maxPos, counterDown = maxPos;
+  while(sum < totalPixels) {
+      if(directionUp) {
+          counterUp++;
+          if(counterUp < 255) {
+              sum += bgModelHist[counterUp];
+            }
+          directionUp = false;
+        }
+      else {
+          counterDown--;
+          if(counterDown >= 0) {
+              sum += bgModelHist[counterDown];
+            }
+          directionUp = true;
+        }
+
+      if(!boundsMostFound && sum >= HISTOGRAM_MOST*totalPixels) {
+          upperMost = counterUp;
+          lowerMost = counterDown;
+          boundsMostFound = true;
+        }
+      if(!boundsAllFound && sum == totalPixels) {
+          upperAll = counterUp;
+          lowerAll = counterDown;
+          boundsAllFound = true;
+        }
+
+    }
+
+  std::cout << "All pixels are in:(" << lowerAll << "," << upperAll << ")" << std::endl;
+  std::cout << "Most pixels are in:(" << lowerMost << "," << upperMost << ")" << std::endl;
+
+  for (unsigned int i = 0; i < 256; ++i) {
+      if(i < lowerMost || i > upperMost) {
+          bgModelHist[i] = 0;
+        }
+    }
+
+  for (int row = 0; row < backgroundModel.rows*(1.0 - MARGIN_BOTTOM); ++row) {
+      for (int col = backgroundModel.cols * MARGIN_SIDE; col < backgroundModel.cols*(1.0 - MARGIN_SIDE); ++col) {
+           if((unsigned int)backgroundModel.at<uchar>(row, col) < lowerMost || (unsigned int)backgroundModel.at<uchar>(row, col) > upperMost) {
+               backgroundModel.at<uchar>(row, col) = (unsigned char)maxPos;
+             }
+        }
+    }
+
   return;
 }
 

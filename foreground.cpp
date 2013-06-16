@@ -3,7 +3,7 @@
 #define HPROJ_THRESH 0.05
 #define VPROJ_THRESH 0.05
 #define BOUNDING_MARGIN 3
-#define DIFF_THRESH 40
+#define DIFF_THRESH 30
 
 Foreground::Foreground(Background &back): background(back) {}
 
@@ -33,7 +33,7 @@ void Foreground::computeBinary() {
 
       cv::imshow("Person", bounded);
 
-      cv::waitKey(0);
+      cv::waitKey(10);
   }
 }
 
