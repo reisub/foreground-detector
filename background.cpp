@@ -58,54 +58,19 @@ void Background::computeBasicModel() {
         }
     }
 
-  // izračunati koliko se maksimalno frame razlikuje od modela pozadine
-  // postaviti granicu empirijski
-  video.release();
-  video.open(file);
-
-  long int difference_score = 0;
-  int cnt = 0;
-
-  while(video.read(frame)) {
-      cnt++;
-      if(cnt % FRAMES != 0) {
-          continue;
-        }
-
-      cv::cvtColor(frame, gray, CV_RGB2GRAY);
-      grayscaleGaussianBlur(gray, gray, 5);
-
-      long int difference = 0;
-      for (int row = 0; row < gray.rows; ++row) {
-#pragma omp parallel for reduction(+:difference)
-          for (int col = 0; col < gray.cols; ++col) {
-              if(abs((int)gray.at<uchar>(row, col)-(int)backgroundModel.at<uchar>(row, col)) >= DIFF_THRESH) {
-                  difference++;
-                }
-            }
-        }
-
-      if(difference > difference_score) {
-          difference_score = difference;
-        }
-    }
-
-  std::cout << "Difference score: " << difference_score << std::endl;
-
-  //  if(difference_score < 2000.0)
-  //    exit(0);
-
   cv::Mat hist;
   cv::Mat centralBgModel = cv::Mat(backgroundModel, cv::Range(0, backgroundModel.rows*(1.0 - MARGIN_BOTTOM)), cv::Range(backgroundModel.cols * MARGIN_SIDE, backgroundModel.cols*(1.0 - MARGIN_SIDE)));
   drawHistogram(centralBgModel, hist);
 
-  cv::namedWindow( "Background", CV_WINDOW_AUTOSIZE );
-  cv::imshow( "Background", backgroundModel );
-  cv::namedWindow( "Histogram", CV_WINDOW_AUTOSIZE );
-  cv::imshow( "Histogram", hist );
-  cv::waitKey(0);
+//  cv::namedWindow( "Background", CV_WINDOW_AUTOSIZE );
+//  cv::imshow( "Background", backgroundModel );
+//  cv::namedWindow( "Histogram", CV_WINDOW_AUTOSIZE );
+//  cv::imshow( "Histogram", hist );
+//  cv::waitKey(0);
 
-  exit(0);
+  // 2sigma okolo peaka?
+
+//  exit(0);
 
 }
 
