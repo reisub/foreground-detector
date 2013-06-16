@@ -8,7 +8,7 @@
 #define HISTOGRAM_MOST 0.9
 
 Background::Background(std::string filename): file(filename) {
-  std::cout << "Initializing stuff.." << std::endl;
+//  std::cout << "Initializing stuff.." << std::endl;
   video.open(file);
   if (!video.isOpened()) {
       std::cerr << "Could not open video file \"" << file << "\". Aborting." << std::endl;
@@ -18,12 +18,12 @@ Background::Background(std::string filename): file(filename) {
   width = (int)video.get(CV_CAP_PROP_FRAME_WIDTH);
   height = (int)video.get(CV_CAP_PROP_FRAME_HEIGHT);
   backgroundModel = cv::Mat(cv::Size(width, height), CV_8UC1, cv::Scalar::all(0));
-   std::cout << "Video size is " << width << "x" << height << "." << std::endl;
+//   std::cout << "Video size is " << width << "x" << height << "." << std::endl;
   pixels = new std::vector<unsigned char>[width*height];
 }
 
 void Background::computeBasicModel() {
-  std::cout << "Computing basic background model.." << std::endl;
+//  std::cout << "Computing basic background model.." << std::endl;
   assert(video.isOpened());
 
   cv::Mat frame, gray;
@@ -58,19 +58,19 @@ void Background::computeBasicModel() {
   bgModelHist = computeHistogram(centralBgModel);
   drawHistogram(bgModelHist, hist);
 
-  cv::namedWindow( "Background", CV_WINDOW_AUTOSIZE );
-  cv::imshow( "Background", backgroundModel );
-  cv::namedWindow( "Histogram", CV_WINDOW_AUTOSIZE );
-  cv::imshow( "Histogram", hist );
+//  cv::namedWindow( "Background", CV_WINDOW_AUTOSIZE );
+//  cv::imshow( "Background", backgroundModel );
+//  cv::namedWindow( "Histogram", CV_WINDOW_AUTOSIZE );
+//  cv::imshow( "Histogram", hist );
 
   adjustBackgroundModel();
   drawHistogram(bgModelHist, hist);
 
-  cv::namedWindow( "Adjusted background", CV_WINDOW_AUTOSIZE );
-  cv::imshow( "Adjusted background", backgroundModel );
-  cv::namedWindow( "Adjusted histogram", CV_WINDOW_AUTOSIZE );
-  cv::imshow( "Adjusted histogram", hist );
-  cv::waitKey(0);
+//  cv::namedWindow( "Adjusted background", CV_WINDOW_AUTOSIZE );
+//  cv::imshow( "Adjusted background", backgroundModel );
+//  cv::namedWindow( "Adjusted histogram", CV_WINDOW_AUTOSIZE );
+//  cv::imshow( "Adjusted histogram", hist );
+//  cv::waitKey(0);
 
 //  exit(0);
 }
@@ -123,8 +123,8 @@ void Background::adjustBackgroundModel() {
 
     }
 
-  std::cout << "All pixels are in:(" << lowerAll << "," << upperAll << ")" << std::endl;
-  std::cout << "Most pixels are in:(" << lowerMost << "," << upperMost << ")" << std::endl;
+//  std::cout << "All pixels are in:(" << lowerAll << "," << upperAll << ")" << std::endl;
+//  std::cout << "Most pixels are in:(" << lowerMost << "," << upperMost << ")" << std::endl;
 
   for (unsigned int i = 0; i < 256; ++i) {
       if(i < lowerMost || i > upperMost) {

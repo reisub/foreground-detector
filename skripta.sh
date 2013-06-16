@@ -9,6 +9,8 @@ fi
 
 for i in $HOME/Downloads/video_zavrsni/$dir/*.avi
 do
-    echo $i
+    filename=$(basename "$i")
+    echo "$filename:"
     ./detector "$i"
+    echo "#"
 done

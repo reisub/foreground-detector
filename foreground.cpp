@@ -12,7 +12,7 @@ Foreground::~Foreground() {
 }
 
 void Foreground::computeBinary() {
-  std::cout << "Computing binary images and projections.." << std::endl;
+//  std::cout << "Computing binary images and projections.." << std::endl;
 
   cv::Mat difference, binarized;
 
@@ -29,15 +29,15 @@ void Foreground::computeBinary() {
       cv::threshold(difference, binarized, DIFF_THRESH, 255, cv::THRESH_BINARY);
       binary.push_back(binarized.clone());
 
-      cv::Mat bounded = computeProjection(binarized, background.frames[i]);
+      cv::Mat bounded = computeProjection(binarized, background.frames[i], i);
 
-      cv::imshow("Person", bounded);
+//      cv::imshow("Person", bounded);
 
-      cv::waitKey(10);
+//      cv::waitKey(10);
   }
 }
 
-cv::Mat Foreground::computeProjection(cv::Mat &binary, cv::Mat &frame) {
+cv::Mat Foreground::computeProjection(cv::Mat &binary, cv::Mat &frame, unsigned int frameN) {
   cv::Mat vertical = cv::Mat(background.height, background.width, CV_8UC1);
   cv::Mat horizontal = cv::Mat(background.height, background.width, CV_8UC1);
   std::vector<unsigned char> hproj, vproj;
@@ -59,6 +59,7 @@ cv::Mat Foreground::computeProjection(cv::Mat &binary, cv::Mat &frame) {
       hdim[1] = ((hdim[1] + BOUNDING_MARGIN) < bounded.rows ) ? (hdim[1] + BOUNDING_MARGIN) : (bounded.rows - 1) ;
       vdim[1] = ((vdim[1] + BOUNDING_MARGIN) < bounded.cols ) ? (vdim[1] + BOUNDING_MARGIN) : (bounded.cols - 1) ;
       cv::rectangle(bounded, cv::Point(vdim[0], hdim[0]), cv::Point(vdim[1], hdim[1]), cv::Scalar(0, 0, 255), 1);
+      std::cout << frameN+1 << " " << vdim[0] << " " << hdim[1] << " " << vdim[1] << " " << hdim[0] << std::endl;
     }
 
   return bounded;
