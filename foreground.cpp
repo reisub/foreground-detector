@@ -19,6 +19,7 @@ void Foreground::computeBinary() {
   cv::namedWindow( "Person", CV_WINDOW_AUTOSIZE );
 
   for (unsigned int i = 0; i < background.frames.size(); ++i) {
+//      std::cout << background.frames[i].rows << " " <<  background.frames[i].cols << " " << background.backgroundModel.rows << " " << background.backgroundModel.cols << std::endl;
       difference = cv::abs(background.frames[i] - background.backgroundModel);
 
       // Reduce noise with Gaussian Blur
