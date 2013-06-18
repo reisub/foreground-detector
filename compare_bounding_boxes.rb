@@ -19,14 +19,9 @@ def fill_hash_from_file(input_file, output_hash)
 	text = IO.read(input_file)
 	videos = text.split("#\n")
 
-	puts videos.size
-
 	videos.each do |video|
 		lines = video.split("\n")
 		filename = lines.shift
-		if !filename
-			next
-		end
 		filename.chomp!(":")
 		frames = {}
 		lines.each do |line|
@@ -50,6 +45,10 @@ def calculate_surface(values)
 	a = x2 - x1
 	b = y2 - y1
 
+	if a < 0 or b < 0
+		return 0
+	end
+
 	return a*b
 end
 
@@ -62,9 +61,6 @@ def calculate_intersection(values1, values2)
 	s1 = calculate_surface(values1)
 	s2 = calculate_surface(values2)
 	inter = calculate_surface([x1, y2, x2, y1])
-	if inter < 0.0
-		return 0
-	end
 
 	return inter/([s1, s2].max).to_f
 end
@@ -75,11 +71,66 @@ second = {}
 fill_hash_from_file(ARGV[0], first)
 fill_hash_from_file(ARGV[1], second)
 
+inter_actions = {}
+inter_scenarios = {}
+
+actions.each do |action|
+	inter_actions[action] = []
+end
+
+scenarios.each do |scenario|
+	inter_scenarios[scenario] = []
+end
+
 first.each_key do |filename|
 	frames = first[filename]
+	if !second.key?(filename)
+		next
+	end
 	frames.each_key do |frameNr|
 		if second[filename].key?(frameNr)
-			puts calculate_intersection(frames[frameNr], second[filename][frameNr])
+			arr = filename.split("_")
+			act, scen = arr[1], arr[2]
+			inter = calculate_intersection(frames[frameNr], second[filename][frameNr])
+			inter_actions[act].push(inter)
+			inter_scenarios[scen].push(inter)
+			if inter > 1.0
+				puts filename + " " + frameNr.to_s + " " + inter.to_s
+			end
 		end
 	end
 end
+
+puts "Scenarios:"
+inter_scenarios.each_key do |scenario|
+	sum = 0
+	inter_scenarios[scenario].each do |value|
+		sum += value
+	end
+	puts scenario + ": " + (sum/inter_scenarios[scenario].size).to_s
+end
+
+all = []
+
+puts
+
+puts "Actions:"
+inter_actions.each_key do |action|
+	all += inter_actions[action]
+	sum = 0
+	inter_actions[action].each do |value|
+		sum += value
+	end
+	puts action + ": " + (sum/inter_actions[action].size).to_s
+end
+
+sum = 0
+all.each do |value|
+	sum += value
+end
+avg = sum/all.size
+
+puts
+puts "Min: " + all.min.to_s
+puts "Max: " + all.max.to_s
+puts "Avg: " + avg.to_s
