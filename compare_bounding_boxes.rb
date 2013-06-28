@@ -7,14 +7,6 @@ end
 actions = ["walking", "running", "jogging", "boxing", "handclapping", "handwaving"]
 scenarios = ["d1", "d2", "d3", "d4"]
 
-# format: frame minX maxY maxX minY
-
-# TODO
-#
-# store all bounding boxes in hash for key filename
-# hash[filename] => hash[frame] => bounding box
-#
-
 def fill_hash_from_file(input_file, output_hash)
 	text = IO.read(input_file)
 	videos = text.split("#\n")
@@ -35,6 +27,8 @@ def fill_hash_from_file(input_file, output_hash)
 		output_hash[filename] = frames
 	end
 end
+
+# format: frame minX maxY maxX minY
 
 def calculate_surface(values)
 	x1 = values[0]
@@ -94,9 +88,6 @@ first.each_key do |filename|
 			inter = calculate_intersection(frames[frameNr], second[filename][frameNr])
 			inter_actions[act].push(inter)
 			inter_scenarios[scen].push(inter)
-			if inter > 1.0
-				puts filename + " " + frameNr.to_s + " " + inter.to_s
-			end
 		end
 	end
 end
@@ -134,3 +125,4 @@ puts
 puts "Min: " + all.min.to_s
 puts "Max: " + all.max.to_s
 puts "Avg: " + avg.to_s
+puts "Median: " + all.sort[all.size/2].to_s

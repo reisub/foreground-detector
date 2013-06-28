@@ -16,7 +16,7 @@ void Foreground::computeBinary() {
 
   cv::Mat difference, binarized;
 
-  cv::namedWindow( "Person", CV_WINDOW_AUTOSIZE );
+//  cv::namedWindow( "Person", CV_WINDOW_AUTOSIZE );
 
   for (unsigned int i = 0; i < background.frames.size(); ++i) {
 //      std::cout << background.frames[i].rows << " " <<  background.frames[i].cols << " " << background.backgroundModel.rows << " " << background.backgroundModel.cols << std::endl;
@@ -32,8 +32,7 @@ void Foreground::computeBinary() {
       cv::Mat bounded = computeProjection(binarized, background.frames[i], i);
 
 //      cv::imshow("Person", bounded);
-
-//      cv::waitKey(10);
+//      cv::waitKey(0);
   }
 }
 
@@ -58,8 +57,12 @@ cv::Mat Foreground::computeProjection(cv::Mat &binary, cv::Mat &frame, unsigned 
       vdim[0] = (vdim[0] > BOUNDING_MARGIN) ? (vdim[0] - BOUNDING_MARGIN) : 0 ;
       hdim[1] = ((hdim[1] + BOUNDING_MARGIN) < bounded.rows ) ? (hdim[1] + BOUNDING_MARGIN) : (bounded.rows - 1) ;
       vdim[1] = ((vdim[1] + BOUNDING_MARGIN) < bounded.cols ) ? (vdim[1] + BOUNDING_MARGIN) : (bounded.cols - 1) ;
-      cv::rectangle(bounded, cv::Point(vdim[0], hdim[0]), cv::Point(vdim[1], hdim[1]), cv::Scalar(0, 0, 255), 1);
-      std::cout << frameN+1 << " " << vdim[0] << " " << hdim[1] << " " << vdim[1] << " " << hdim[0] << std::endl;
+      int height = hdim[1] - hdim[0];
+      int width = vdim[1] - vdim[0];
+      if(width < height) {
+          cv::rectangle(bounded, cv::Point(vdim[0], hdim[0]), cv::Point(vdim[1], hdim[1]), cv::Scalar(0, 0, 255), 1);
+          std::cout << frameN+1 << " " << vdim[0] << " " << hdim[1] << " " << vdim[1] << " " << hdim[0] << std::endl;
+        }
     }
 
   return bounded;
