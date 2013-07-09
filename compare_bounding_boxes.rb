@@ -88,6 +88,9 @@ first.each_key do |filename|
 			inter = calculate_intersection(frames[frameNr], second[filename][frameNr])
 			inter_actions[act].push(inter)
 			inter_scenarios[scen].push(inter)
+			if inter < 0.1
+				puts filename + " " + frameNr.to_s + " " + inter.to_s
+			end
 		end
 	end
 end
